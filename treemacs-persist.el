@@ -51,6 +51,7 @@
   (treemacs--log-to-file "Call into restore")
   (treemacs--log-to-file "Never persist = %s" treemacs-never-persist)
   (treemacs--log-to-file "Id frame params not yet restored = %s" (--all? (null (frame-parameter it 'treemacs-id)) (frame-list)))
+  (treemacs--log-to-file "Helper = %s" (get-buffer treemacs--desktop-helper-name))
   ;; condition is true when we're running in eager restoration and the frameset is not yet restored
   ;; in this case this function will be run again, with restored frame parameters, in `desktop-after-read-hook'
   (unless (or treemacs-never-persist
@@ -58,10 +59,12 @@
     ;; Abusing a timer like this (hopefully) guarantees that the restore runs after everything else and
     ;; the restored treemacs buffers remain visible
     (treemacs--log-to-file "Starting timer")
+    (treemacs--log-to-file "Helper = %s" (get-buffer treemacs--desktop-helper-name))
     (run-with-timer
      1 nil
      (lambda ()
        (treemacs--log-to-file "In timer")
+       (treemacs--log-to-file "Helper = %s" (get-buffer treemacs--desktop-helper-name))
        (-when-let- [b (get-buffer treemacs--desktop-helper-name)]
          (treemacs--log-to-file "Killing desktop helper %s" b)
          (kill-buffer b))
@@ -144,9 +147,11 @@ persisted state so it will not be loaded on the next desktop read."
 Works if run during the lazy restoration phase, otherwise
 `desktop-after-read-hook' will take care of treemacs."
     (treemacs--log-to-file "Call to desktop handler")
+    (treemacs--log-to-file "Helper = %s" (get-buffer treemacs--desktop-helper-name))
     (treemacs--restore)
-    (treemacs--log-to-file "Complete call to restore, returning buffer %s" (current-buffer))
-    (current-buffer))
+    (treemacs--log-to-file "Complete call to restore, returning buffer %s" (get-buffer treemacs--desktop-helper-name))
+    (treemacs--log-to-file "Helper = %s" (get-buffer treemacs--desktop-helper-name))
+    (get-buffer-create treemacs--desktop-helper-name))
 
   (defun treemacs--desktop-persist-advice (&rest _)
     "Persists treemacs alongside `desktop-save'."
