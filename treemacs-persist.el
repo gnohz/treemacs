@@ -151,6 +151,9 @@ Works if run during the lazy restoration phase, otherwise
     (treemacs--restore)
     (treemacs--log-to-file "Complete call to restore, returning buffer %s" (get-buffer treemacs--desktop-helper-name))
     (treemacs--log-to-file "Helper = %s" (get-buffer treemacs--desktop-helper-name))
+    ;; we need to give desktop mode a live buffer and the helper will be killed once the real restore is
+    ;; run in a timer
+    ;; just returning scratch does not work as whatever desktop-mode does may leave it broken as in #101
     (get-buffer-create treemacs--desktop-helper-name))
 
   (defun treemacs--desktop-persist-advice (&rest _)
